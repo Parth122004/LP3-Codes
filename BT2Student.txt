@@ -1,0 +1,176 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/// @title Student Data Smart Contract
+/// @author Parth Ingle
+
+contract StudentData {
+    // Define a Student structure with four fields
+    struct Student {
+        string name;       // student name
+        string className;  // class or section
+        uint256 age;       // age in years
+        uint256 rollNo;    // unique roll number
+    }
+
+    // Dynamic array to store Student structs on-chain
+    Student[] public students;
+
+    // Mapping to check if a roll number already exists (prevents duplicates)
+    mapping(uint256 => bool) private _rollExists;
+
+    // Owner of the contract (deployer), used for access control
+    address public owner;
+
+    // Event emitted when a new student is added (useful for off-chain logs)
+    event StudentAdd(string name, uint256 indexed rollNo);
+
+    // Modifier to restrict certain functions to contract owner only
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call");
+        _;
+    }
+
+    // Constructor sets deployer as owner
+    constructor() {
+        owner = msg.sender;
+    }
+
+    /**
+     * @notice Add a new student record
+     * @param _name    Student name (calldata for gas efficiency)
+     * @param _age     Student age
+     * @param _className Class name
+     * @param _rollNo  Unique roll number
+     *
+     * Requirements:
+     * - Only owner can call.
+     * - Name and class must be non-empty.
+     * - Age must be > 0 and reasonable.
+     * - Roll number must not already exist.
+     */
+    function addStudent(
+        string calldata _name,
+        uint256 _age,
+        string calldata _className,
+        uint256 _rollNo
+    ) external onlyOwner {
+        // Validate inputs
+        require(bytes(_name).length > 0 && bytes(_className).length > 0, "Invalid Name or Class");
+        require(_age > 0 && _age <= 150, "Invalid Age");
+        require(!_rollExists[_rollNo], "Roll number exists");
+
+        // Create a memory Student and push to storage array
+        Student memory tempStudent = Student({
+            name: _name,
+            age: _age,
+            className: _className,
+            rollNo: _rollNo
+        });
+
+        students.push(tempStudent);       // store record on-chain
+        _rollExists[_rollNo] = true;      // mark roll as used
+        emit StudentAdd(_name, _rollNo);  // emit event for off-chain indexing
+    }
+
+    // Return total number of students stored
+    function getTotalStudents() public view returns (uint256) {
+        return students.length;
+    }
+
+    /**
+     * @notice Read a student record by index
+     * @param index Position in students array (0-based)
+     * @return name, age, className, rollNo
+     */
+    function getStudent(uint256 index) public view returns (string memory, uint256, string memory, uint256) {
+        require(index < students.length, "Invalid Index");
+        Student storage s = students[index];    // read from storage
+        return (s.name, s.age, s.className, s.rollNo);
+    }
+}
+
+
+
+------------------------------------------------------
+
+
+Copy this Code in a File named Studet.sol and upload  on https://remix.ethereum.org.
+
+Compile it 
+
+Go to Environment , Default vm
+
+deploy
+
+Use Features
+
+-----------------------------------------------
+
+
+  
+```
+
+---
+
+### Assignment (short)
+
+Create a Solidity contract that stores student records using **structures** and **arrays**. Allow the contract owner to add students and let anyone read stored records. Deploy on Remix, observe gas and transaction fees.
+
+---
+
+### Outputs (short)
+
+* `addStudent(...)` — creates on-chain student record. Transaction gas consumed shown by Remix. Emits `StudentAdd` event.
+* `getTotalStudents()` — returns number of stored students. (view call, no gas when called locally)
+* `getStudent(index)` — returns `(name, age, className, rollNo)` for given index. (view call)
+
+---
+
+### Theory (simple)
+
+* **Structs** group related fields into one unit (Student).
+* **Dynamic arrays** store multiple structs on-chain.
+* **Mappings** provide O(1) existence checks.
+* Writing to storage (students.push) costs gas; reading (view) is free off-chain.
+* **Events** log state changes for off-chain listeners without storing heavy data on-chain.
+
+---
+
+### Viva Q&A (very short)
+
+Q: Who can add a student?
+A: Only the `owner` (deployer).
+Q: Where are student records stored?
+A: On-chain in the `students` storage array.
+Q: How to prevent duplicate roll numbers?
+A: `_rollExists` mapping tracks used roll numbers.
+Q: How to read a student record?
+A: Call `getStudent(index)`; returns the fields.
+Q: What is gas cost dominated by?
+A: Storage writes (SSTORE) when adding student. Events and pushes also cost gas.
+
+---
+
+### Time & Space Complexity (simple)
+
+* **addStudent:** Time O(1) per call (push and mapping write). Gas proportional to storage writes.
+* **getStudent:** Time O(1) read. No gas when called as `view` from UI.
+* **Space:** O(n) storage where n = number of students. Each student consumes storage slots proportional to its fields.
+
+---
+
+### Applications (simple)
+
+* On-chain student registry.
+* Decentralized record-keeping for certificates and attendance (with extensions).
+* Backend for dApps that require immutable student logs.
+* Teaching demo for structs, arrays, mappings, events and gas cost measurement.
+
+---
+
+If you want I can:
+
+* give a **gas-cost example** (approx gas for `addStudent`) by simulating a call,
+* provide an **improved version** that supports pagination or owner transfer, or
+* produce **Remix deployment steps** to test and measure gas. Which do you want?

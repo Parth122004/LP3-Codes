@@ -1,0 +1,306 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/// @title Bank Account Smart Contract
+/// @author Parth Ingle
+/// @notice Simple bank account: deposit, withdraw, show balance
+
+contract BankAccount {
+    // Address of the account owner (deployer)
+    address public owner;
+
+    // Track contract balance in wei. (Note: using `address(this).balance` is another option)
+    uint256 public balance;
+
+    // Events emitted on deposit and withdrawal for off-chain listening
+    event Deposit(address indexed account, uint256 amount);
+    event Withdrawal(address indexed account, uint256 amount);
+
+    // Constructor runs once on deployment. Save deployer as owner and init balance to 0.
+    constructor() {
+        owner = msg.sender;
+        balance = 0;
+    }
+
+    // Modifier to restrict function access to the owner only
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+
+    // Payable deposit function. Send ETH when calling.
+    // msg.value holds the sent wei. Must be > 0.
+    function deposit() public payable {
+        require(msg.value > 0, "Deposit amount must be greater than 0");
+
+        // Increase stored balance by sent wei
+        balance += msg.value;
+
+        // Emit event for off-chain logs
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    // Owner-only withdrawal. Transfers `amount` wei to owner.
+    function withdraw(uint256 amount) public onlyOwner {
+        require(amount > 0, "Withdrawal amount must be greater than 0");
+
+        // Ensure there are enough funds. Use >= to allow exact withdrawal.
+        require(balance >= amount, "Insufficient Funds");
+
+        // Decrease stored balance first to avoid reentrancy risk pattern (though transfer is safe)
+        balance -= amount;
+
+        // Transfer ETH to owner
+        payable(owner).transfer(amount);
+
+        // Emit event for logs
+        emit Withdrawal(msg.sender, amount);
+    }
+
+    // Public view function to read stored balance (in wei)
+    function getBalance() public view returns (uint256) {
+        return balance;
+    }
+}
+
+-----------------
+
+Copy this Code in a File named SmartContact.sol and upload  on https://remix.ethereum.org.
+
+Compile it 
+
+Go to Environment , Default vm
+
+deploy
+
+Use Features
+
+-----------------------------------------------
+
+
+## Assignment (short)
+
+Write a smart contract that models a bank account with three operations: deposit funds, withdraw funds (owner only), and show balance. Deploy and test on Remix (Remix VM or testnet).
+
+---
+
+## Outputs (short)
+
+* `deposit()` transaction: increases contract `balance` and emits `Deposit` event. Must send ETH with the call.
+* `withdraw(amount)` transaction: owner-only. Decreases `balance`, transfers ETH to owner, emits `Withdrawal`.
+* `getBalance()` (view): returns stored balance in **wei**.
+
+---
+
+## Theory (simple)
+
+* Solidity contract stores state on-chain. `payable` functions accept ETH.
+* `msg.sender` is caller address; `msg.value` is wei sent.
+* Events provide off-chain logs.
+* Access control via `modifier`.
+* Always validate inputs and check balances before transfers.
+
+---
+
+## Short notes / best-practice tips
+
+* Use `require(balance >= amount)` (not `>`) to allow exact full withdrawal.
+* Prefer `balance = balance - amount;` before external call to mitigate reentrancy. For complex logic use `Checks-Effects-Interactions` and consider `ReentrancyGuard`.
+* To read real contract ETH, `address(this).balance` reflects actual ETH held by the contract. `balance` variable duplicates that state but is acceptable for a simple lab.
+
+---
+
+## Viva Q&A (very short)
+
+* Q: How do you send ETH to `deposit()`?
+  A: Set a value in Remix’s “Value” field and click `deposit()`.
+* Q: Who can call `withdraw()`?
+  A: Only the `owner` (deployer).
+* Q: How is balance returned?
+  A: `getBalance()` returns wei. Convert to ether by dividing by 1e18.
+* Q: Why emit events?
+  A: For off-chain listeners and transaction logs.
+* Q: How to prevent reentrancy?
+  A: Use Checks-Effects-Interactions pattern and consider `ReentrancyGuard`.
+
+---
+
+## Time & Space Complexity (simple)
+
+* **Gas cost** depends on operation: `deposit()` and `withdraw()` are state-changing and cost gas proportional to SSTORE/SEND operations.
+* **getBalance()** is a free view call (no gas when called locally).
+* **Space:** contract stores two state variables (owner, balance). Storage costs are fixed per variable.
+
+---
+
+## Applications (simple)
+
+* Basic wallet or vault for a single user.
+* Teaching smart-contract patterns: payable, modifiers, events.
+* Lab/demo on deploying, gas costs, and transaction lifecycle.
+* Foundation for multi-user bank, escrow, or savings dApp (needs access control, accounting, security improvements).
+
+---
+
+===================================================================================================================
+
+IF EXTERNAL ASK FOR LOAN FEATURE THEN ONLY PASTE THIS CODE
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/// @title Bank Account with Loan Feature
+/// @author Parth Ingle (Modified)
+/// @notice Simple bank account with deposit, withdraw, and loan functionality
+
+contract BankAccount {
+    // Address of the account owner (deployer)
+    address public owner;
+
+    // Track contract balance in wei
+    uint256 public balance;
+
+    // Loan tracking: principal amount and interest rate (e.g., 5% = 500)
+    uint256 public loanPrincipal;
+    uint256 public loanInterestRate; // Stored as basis points (1% = 100)
+    bool public hasLoan;
+
+    // Events
+    event Deposit(address indexed account, uint256 amount);
+    event Withdrawal(address indexed account, uint256 amount);
+    event LoanTaken(address indexed account, uint256 principal, uint256 interestRate);
+    event LoanRepaid(address indexed account, uint256 totalRepaid);
+
+    constructor() {
+        owner = msg.sender;
+        balance = 0;
+        hasLoan = false;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+
+    function deposit() public payable {
+        require(msg.value > 0, "Deposit amount must be greater than 0");
+        balance += msg.value;
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdraw(uint256 amount) public onlyOwner {
+        require(amount > 0, "Withdrawal amount must be greater than 0");
+        require(balance >= amount, "Insufficient Funds");
+
+        balance -= amount;
+        payable(owner).transfer(amount);
+        emit Withdrawal(msg.sender, amount);
+    }
+
+    /// @notice Take a loan from the bank
+    /// @param _principal Loan amount
+    /// @param _interestRate Interest rate in basis points (1% = 100)
+    function takeLoan(uint256 _principal, uint256 _interestRate) public onlyOwner {
+        require(!hasLoan, "Already have an active loan");
+        require(_principal > 0, "Principal must be > 0");
+        require(_interestRate > 0, "Interest rate must be > 0");
+        require(balance >= _principal, "Insufficient bank funds");
+
+        balance -= _principal;
+        loanPrincipal = _principal;
+        loanInterestRate = _interestRate;
+        hasLoan = true;
+
+        // Transfer loan amount to owner
+        payable(owner).transfer(_principal);
+        emit LoanTaken(msg.sender, _principal, _interestRate);
+    }
+
+    /// @notice Repay the loan with interest
+    function repayLoan() public payable onlyOwner {
+        require(hasLoan, "No active loan");
+        require(msg.value > 0, "Repayment amount must be > 0");
+
+        // Calculate total repayment: principal + interest
+        uint256 interest = (loanPrincipal * loanInterestRate) / 10000; // Divide by 10000 for basis points
+        uint256 totalRepayment = loanPrincipal + interest;
+
+        require(msg.value >= totalRepayment, "Insufficient repayment amount");
+
+        // Reset loan state
+        hasLoan = false;
+
+        // Calculate excess payment (if any)
+        uint256 excess = msg.value - totalRepayment;
+
+        // Add repayment to bank balance
+        balance += totalRepayment;
+
+        // Return excess to owner
+        if (excess > 0) {
+            payable(owner).transfer(excess);
+        }
+
+        emit LoanRepaid(msg.sender, totalRepayment);
+    }
+
+    function getBalance() public view returns (uint256) {
+        return balance;
+    }
+
+    /// @notice Get total loan repayment amount (principal + interest)
+    function getLoanRepaymentAmount() public view returns (uint256) {
+        if (!hasLoan) return 0;
+        uint256 interest = (loanPrincipal * loanInterestRate) / 10000;
+        return loanPrincipal + interest;
+    }
+}
+
+
+
+--------------------------------------------------
+
+INPUTS (Ask Chat BOT )
+
+
+Here are example inputs for testing the BankAccount contract with the loan feature in Remix IDE:
+
+1. Deploy the Contract
+No inputs needed (click "Deploy").
+2. Deposit ETH
+Function: deposit()
+Value (ETH): 10 (or any amount > 0)
+Expected: Balance increases by 10 ETH.
+3. Take a Loan
+Function: takeLoan(uint256 _principal, uint256 _interestRate)
+Inputs:
+_principal: 5 (5 ETH loan)
+_interestRate: 1000 (10% interest)
+Expected:
+Owner receives 5 ETH.
+Bank balance decreases by 5 ETH.
+Loan is recorded (hasLoan = true).
+4. Repay Loan
+Function: repayLoan()
+Value (ETH): 5.5 (5 ETH principal + 0.5 ETH interest)
+Expected:
+Loan is cleared (hasLoan = false).
+Bank balance increases by 5.5 ETH.
+If excess ETH is sent (e.g., 6 ETH), the extra 0.5 ETH is refunded.
+5. Withdraw ETH
+Function: withdraw(uint256 amount)
+Input: 2 (2 ETH)
+Expected:
+Owner receives 2 ETH.
+Bank balance decreases by 2 ETH.
+6. Check Balance & Loan Status
+Functions:
+getBalance() → Returns current bank balance.
+getLoanRepaymentAmount() → Returns 0 if no loan, else principal + interest.
+Test Sequence in Remix
+Deploy
+Deposit 10 ETH
+Take loan (5 ETH, 10% interest)
+Repay loan (5.5 ETH)
+Withdraw 2 ETH
+Check balance (10 - 5 + 5.5 - 2 = 8.5 ETH)
