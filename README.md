@@ -1,4 +1,4 @@
-# Sem 7 -> LP3 : DAA, ML & BT COdes with Explanation
+# Sem 7 -> LP3 : DAA, ML & BT Codes with Explanation
 
 DAA Assignment 1: Fibonacci Numbers (Recursive & Non-Recursive)
 
