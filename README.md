@@ -1,4 +1,5 @@
-# LP3 Codes : All Daa, ML & BT Codes with Explanation
+#Sem 7 -> LP3 : DAA, ML & BT COdes with Explanation
+
 DAA Assignment 1: Fibonacci Numbers (Recursive & Non-Recursive)
 
 Aim:
@@ -784,5 +785,383 @@ Determine the number of clusters with the **elbow method** and visualize cluster
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 
+
+BT 1. Write a smart contract on a test network, for Bank account of a customer for following 
+operations: 
+• Deposit money 
+• Withdraw Money 
+• Show balance 
+
+---
+
+## **Assignment (short)**
+
+Create a smart contract for a simple **Bank Account** that allows:
+
+* Deposit ETH
+* Withdraw ETH (only owner)
+* Check balance
+
+Deploy and test it on **Remix VM**.
+
+---
+
+## **Outputs (short)**
+
+* `deposit()` — adds ETH to balance and emits `Deposit` event.
+* `withdraw(amount)` — owner withdraws ETH, emits `Withdrawal`.
+* `getBalance()` — shows current balance in wei.
+
+---
+
+## **Theory (simple)**
+
+* Contracts store data on-chain.
+* `payable` allows receiving ETH.
+* `msg.sender` = caller, `msg.value` = amount sent.
+* `require()` checks conditions before execution.
+
+---
+
+## **Viva Q&A**
+
+* **Q:** How to send ETH? → Enter value in Remix then click `deposit()`.
+* **Q:** Who can withdraw? → Only contract owner.
+* **Q:** Unit of balance? → Wei (1 ether = 10¹⁸ wei).
+* **Q:** Why events? → For tracking deposits and withdrawals.
+
+---
+
+## **Complexity**
+
+* **deposit / withdraw:** O(1) each, gas used for state updates.
+* **getBalance:** O(1), free when called locally.
+
+---
+
+## **Applications**
+
+1. Simple ETH wallet.
+2. Learning smart contract basics.
+3. Foundation for escrow or savings dApp.
+
+---
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+ BT 2. Write a program in solidity to create Student data. Use the following 
+constructs: 
+• Structures 
+• Arrays 
+Deploy this as smart contract on Ethereum and Observe the transaction fee and 
+Gas values.
+
+
+---
+
+## **Assignment (short)**
+
+Create a Solidity contract to store **student records** using **structures** and **arrays**.
+Only the owner can add students; anyone can read data. Deploy and test on Remix.
+
+---
+
+## **Outputs (short)**
+
+* `addStudent()` → adds record, emits `StudentAdd` event, uses gas.
+* `getTotalStudents()` → returns total count.
+* `getStudent(index)` → returns one student’s details.
+
+---
+
+## **Theory (simple)**
+
+* **Structs** group data (name, age, class, roll).
+* **Array** stores multiple student records.
+* **Mapping** ensures roll numbers are unique.
+* Writing uses gas; reading (`view`) is free.
+
+---
+
+## **Viva Q&A**
+
+* Who can add a student? → Owner only.
+* Where is data stored? → On-chain in `students`.
+* Why mapping? → To prevent duplicate roll numbers.
+* What costs gas? → Adding records.
+
+---
+
+## **Complexity**
+
+* `addStudent`: O(1)
+* `getStudent`: O(1)
+* Storage: O(n) for n students
+
+---
+
+## **Applications**
+
+* On-chain student registry
+* Educational record system
+* dApp backend for student data
+
+---
+
+---------------------------------------------------------------------------------------------------------------
+
+ML MINI PROJECT 
+
+**ML Mini Project: Titanic Data Analysis and Prediction — Viva Explanation (Short and Simple)**
+
+---
+
+### **Project Summary**
+
+This mini-project used the **Titanic dataset** to predict whether a passenger survived the shipwreck.
+It covered the **full data science pipeline** — cleaning data, analyzing it with graphs, and training a **Random Forest Classifier** model to make predictions.
+
+---
+
+### **Step-by-Step Explanation (for Viva)**
+
+1. **Problem Definition:**
+   Predict passenger survival using age, fare, gender, and embarkation port.
+
+2. **Data Cleaning:**
+
+   * Filled missing ages using the **median value per title** (e.g., Mr., Mrs., Miss).
+   * Filled missing “Embarked” with the **most frequent port (S)**.
+   * Inferred “Cabin” data roughly using similar “Fare” values.
+
+3. **Feature Engineering:**
+
+   * Extracted titles from names (e.g., Mr., Mrs.).
+   * Removed unnecessary columns (Name, Ticket, PassengerId).
+   * Used **Label Encoding** for text columns.
+
+4. **Visualization:**
+
+   * Used **Seaborn** and **Matplotlib** for bar charts and histograms to understand data.
+   * Example: Women and higher-fare passengers had higher survival rates.
+
+5. **Model Building:**
+
+   * Used **Random Forest Classifier** (ensemble of decision trees).
+   * Trained on 80% of data, tested on 20%.
+   * Achieved ~82% accuracy.
+
+6. **Evaluation:**
+
+   * Checked accuracy and classification report.
+   * Identified key features: Fare, Sex, and Age were most important.
+
+7. **Conclusion:**
+   Clean data and good features improved accuracy. Random Forest worked well due to low overfitting and interpretability.
+
+---
+
+### **Viva Q&A (Short Answers)**
+
+**Q1:** What is the goal of this project?
+**A:** To predict survival of Titanic passengers using machine learning.
+
+**Q2:** Which algorithm did you use?
+**A:** Random Forest Classifier.
+
+**Q3:** Why Random Forest?
+**A:** It reduces overfitting and gives high accuracy using multiple trees.
+
+**Q4:** How did you handle missing data?
+**A:** Filled missing ages using title-based median and used mode for Embarked.
+
+**Q5:** Which libraries were used?
+**A:** Pandas, NumPy, Seaborn, Matplotlib, Scikit-learn.
+
+**Q6:** What is feature engineering?
+**A:** Creating or transforming columns to improve model performance.
+
+**Q7:** What was the accuracy?
+**A:** Around 82%.
+
+**Q8:** Which feature most affected survival?
+**A:** Fare, Sex, and Age.
+
+**Q9:** What is data visualization used for?
+**A:** To understand trends, patterns, and outliers before modeling.
+
+**Q10:** What is the output of the model?
+**A:** 1 → Survived, 0 → Not Survived.
+
+---
+
+### **Applications**
+
+* Predict survival or risk in transport or disaster scenarios.
+* Similar methods apply to **medical survival analysis**, **customer churn prediction**, and **fraud detection**.
+* Demonstrates end-to-end ML process: cleaning → visualization → prediction.
+
+---
+
+Would you like a **1-minute oral viva script** (how to explain this confidently to an examiner)?
+
+
+==========================================================================================================
+
+Extra
+
+Here’s a clear explanation of **supervised**, **unsupervised**, and **reinforcement learning** — and how they relate (or are used) in **blockchain technology**.
+
+---
+
+### **1. Supervised Learning**
+
+**Meaning:**
+The model is trained using **labeled data** — data that already has correct answers (output) known.
+It learns to map inputs → outputs.
+
+**Example in Blockchain:**
+
+* Detecting **fraudulent transactions** using past data labeled as “fraud” or “safe.”
+* Predicting **cryptocurrency prices** from historical price data.
+
+**How it works:**
+
+* Input: Transaction data
+* Output: Fraud/Not fraud (label)
+* Model learns by comparing predictions with actual labels and minimizing errors.
+
+---
+
+### **2. Unsupervised Learning**
+
+**Meaning:**
+The model is trained using **unlabeled data**, where correct outputs are not known.
+It finds **hidden patterns, clusters, or relationships** on its own.
+
+**Example in Blockchain:**
+
+* **Clustering wallet addresses** with similar transaction behavior.
+* **Detecting anomalies** (suspicious activity) without labeled fraud data.
+* Grouping similar smart contracts or users by activity.
+
+**How it works:**
+
+* Input: Raw transaction data
+* Output: Groups or clusters (like similar wallets or behaviors)
+
+---
+
+### **3. Reinforcement Learning**
+
+**Meaning:**
+The model **learns by trial and error**. It interacts with an environment, receives **rewards or penalties**, and improves its strategy to maximize rewards.
+
+**Example in Blockchain:**
+
+* **Optimizing mining strategies** (choosing which block to mine).
+* **Improving consensus mechanisms** (like dynamic fee adjustment).
+* **Smart contract automation** — deciding actions to maximize profit or efficiency.
+
+**How it works:**
+
+* Agent → takes action → gets reward/punishment → learns best action policy.
+
+---
+
+### **Difference Table**
+
+| Type                                | Data Type                                                 | Learns From                            | Output                                                                               | Blockchain Use Case                                 |
+| -----------------                  | ------------------------------                           | -------------------                   ----- | ---------------------------------                                     ------ | --------------------------------------------------- |
+| **Supervised**        | Labeled                                                    | Known inputs and outputs | Predictions (classification/regression) | Fraud detection, price prediction                   |
+| **Unsupervised**   | Unlabeled                                                | Hidden patterns in data   | Clusters or groups                                                   | Wallet clustering, anomaly detection                |
+| **Reinforcement** | Dynamic (environment feedback) | Rewards & penalties           | Optimal actions/policies                                   | Mining optimization, smart contract decision-making |
+
+---
+
+Would you like me to add **viva-style Q&A** for these three types (useful for exams or oral explanations)?
+
+====================================================================================
+
+Extra 
+
+Here’s a simple, real-life explanation of **True Positive, False Positive, False Negative, and True Negative** — with examples to make it clear.
+
+---
+
+### **1. True Positive (TP)**
+
+**Meaning:** The system predicted something **positive**, and it was **actually true**.
+**You were right to say “yes.”**
+
+**Example:**
+A fraud detection system flags a transaction as **fraudulent**, and it **really was fraud**.
+✅ Prediction = Fraud
+✅ Reality = Fraud
+
+**Other example:**
+A COVID test says the person **has the virus**, and they **actually have it**.
+
+---
+
+### **2. False Positive (FP)**
+
+**Meaning:** The system predicted **positive**, but it was **actually false**.
+**You said “yes,” but it was wrong.**
+
+**Example:**
+Fraud detection flags a transaction as **fraudulent**, but it was **a genuine transaction**.
+❌ Prediction = Fraud
+✅ Reality = Not fraud
+
+**Other example:**
+A COVID test says a person **has the virus**, but they **don’t**.
+
+---
+
+### **3. False Negative (FN)**
+
+**Meaning:** The system predicted **negative**, but it was **actually positive**.
+**You said “no,” but it was actually “yes.”**
+
+**Example:**
+Fraud detection system marks a transaction as **safe**, but it was **actually fraud**.
+❌ Prediction = Not fraud
+✅ Reality = Fraud
+
+**Other example:**
+A COVID test says the person **doesn’t have the virus**, but they **actually do**.
+
+---
+
+### **4. True Negative (TN)**
+
+**Meaning:** The system predicted **negative**, and it was **actually true**.
+**You were right to say “no.”**
+
+**Example:**
+Fraud detection system says a transaction is **safe**, and it **really was safe**.
+✅ Prediction = Not fraud
+✅ Reality = Not fraud
+
+**Other example:**
+A COVID test says the person **doesn’t have the virus**, and they **don’t**.
+
+---
+
+### **Quick Summary Table**
+
+| Term                    | Prediction | Actual   | Example                          |
+| ----------------------- | ---------- | -------- | -------------------------------- |
+| **True Positive (TP)**  | Positive   | Positive | Fraud predicted → Fraud occurred |
+| **False Positive (FP)** | Positive   | Negative | Predicted fraud → No fraud       |
+| **False Negative (FN)** | Negative   | Positive | Predicted safe → Fraud occurred  |
+| **True Negative (TN)**  | Negative   | Negative | Predicted safe → No fraud        |
+
+---
+
+Would you like me to explain these using a **confusion matrix diagram** (the visual 2×2 table often shown in ML exams)?
 
 
