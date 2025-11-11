@@ -1,0 +1,219 @@
+#include <iostream>                // include iostream for input/output
+using namespace std;               // use the standard namespace for cout, cin, endl
+
+// Recursive Fibonacci function: returns F(n) using the direct recurrence
+int fibRecursive(int n) {
+    if (n <= 1)                   // base cases: F(0)=0, F(1)=1
+        return n;                 // return n (0 or 1)
+    return fibRecursive(n - 1) + fibRecursive(n - 2); // recursive step: F(n)=F(n-1)+F(n-2)
+}
+
+// Iterative Fibonacci function: returns F(n) using a loop
+int fibIterative(int n) {
+    if (n <= 1)                   // handle base cases quickly
+        return n;                 // return n (0 or 1)
+    int a = 0, b = 1, c;          // a holds F(i-2), b holds F(i-1), c will hold F(i)
+    for (int i = 2; i <= n; i++) { // loop from 2 to n to build sequence
+        c = a + b;                // compute next Fibonacci number
+        a = b;                    // shift: a becomes previous F(i-1)
+        b = c;                    // shift: b becomes current F(i)
+    }
+    return b;                     // b now contains F(n)
+}
+
+// Function to print the entire Fibonacci sequence up to n terms
+void printFibonacciSeries(int n) {
+    int a = 0, b = 1, c;          // initialize first two terms
+    cout << "\nFibonacci Sequence: ";
+    if (n <= 0)                   // if n <= 0, nothing to print
+        return;
+    cout << a << " ";             // print F(0)
+    if (n == 1)                   // if only one term, stop
+        return;
+    cout << b << " ";             // print F(1)
+    for (int i = 2; i < n; i++) { // loop to generate next terms
+        c = a + b;                // compute next Fibonacci number
+        cout << c << " ";         // print the computed number
+        a = b;                    // update a to previous b
+        b = c;                    // update b to new value
+    }
+    cout << endl;                 // end the sequence line
+}
+
+int main() {
+    int n;                        // variable to store user input (number of Fibonacci terms)
+    cout << "Enter the number: "; // prompt the user for input
+    cin >> n;                     // read integer n from standard input
+
+    printFibonacciSeries(n);      // print the Fibonacci sequence up to n terms
+
+    cout << "\nRecursive Fibonacci(" << n << ") = " << fibRecursive(n); // print nth Fibonacci using recursion
+    cout << "\nIterative Fibonacci(" << n << ") = " << fibIterative(n) << endl; // print nth Fibonacci using iteration
+
+    return 0;                     // indicate successful program termination
+}
+
+//Give "10" input
+
+--------------------------------------------------------------------------------------
+
+Brief assignment explanation
+Compute the nth Fibonacci number two ways: recursively (direct recurrence) and iteratively (loop). Show and compare behavior, time complexity, and space usage of both approaches. Demonstrate understanding of recursion, stack usage, and simple optimization options (memoization, DP, fast doubling).
+
+In simple terms:
+
+Time complexity = how long the algorithm runs.
+
+Space complexity = how much memory it uses while running.
+
+1. Recursive Approach
+
+Definition:
+A recursive function calls itself to solve smaller instances of the same problem until it reaches a base case (the simplest case that stops recursion).
+
+How it works (example Fibonacci):
+F(n) = F(n-1) + F(n-2)
+The function keeps calling itself until it reaches F(1) or F(0).
+
+Key feature:
+Each call is stored on the function call stack, which increases memory usage.
+
+2. Iterative Approach
+
+Definition:
+An iterative method uses loops (like for or while) to repeat operations until a condition is met, without calling the function itself.
+
+How it works (example Fibonacci):
+Start from the base values (0 and 1) and calculate each next term by adding the previous two, updating variables in each iteration.
+
+Key feature:
+It uses looping constructs and usually constant memory.
+
+| Feature                   | Recursive                                  | Iterative                               |
+| ------------------------- | ------------------------------------------ | --------------------------------------- |
+| **Definition**            | Function calls itself                      | Uses loops for repetition               |
+| **Control Structure**     | Function call stack                        | Loop constructs (`for`, `while`)        |
+| **Memory Usage**          | High (uses stack frames)                   | Low (constant variables)                |
+| **Speed**                 | Slower (due to overhead of function calls) | Faster (no extra calls)                 |
+| **Termination**           | Base condition stops recursion             | Loop condition stops iteration          |
+| **Example**               | Factorial, Fibonacci, tree traversal       | Searching, sorting, simple calculations |
+| **Risk**                  | Stack overflow if base case missing        | Infinite loop if condition missing      |
+| **Ease of understanding** | Easier for mathematical/recursive problems | Easier for repetitive counting problems |
+
+| Method    | Time Complexity | Space Complexity | Remarks                                                    |
+| --------- | --------------- | ---------------- | ---------------------------------------------------------- |
+| Recursive | O(2ⁿ)           | O(n)             | Simple logic, exponential time due to repeated subproblems |
+| Iterative | O(n)            | O(1)             | Efficient, runs fast even for large n                      |
+
+Optional Note (for Viva):
+
+If recursion is improved using memoization (Dynamic Programming), both time and space complexities become O(n).
+
+Iterative remains more memory-efficient because it uses constant space.
+
+
+
+
+Viva Questions and Answers — Fibonacci (Recursive & Iterative)
+1. What is the Fibonacci sequence?
+
+Answer:
+It’s a series where each number is the sum of the two preceding ones.
+Mathematically, F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2) for n≥2.
+
+2. What is recursion?
+
+Answer:
+Recursion is when a function calls itself to solve smaller instances of the same problem until a base case is reached.
+
+3. What is iteration?
+
+Answer:
+Iteration uses loops (like for or while) to repeat instructions until a condition is met, without calling the same function again.
+
+4. What is the base condition in Fibonacci recursion?
+
+Answer:
+The base cases are F(0)=0 and F(1)=1. These stop further recursive calls.
+
+5. Why is recursion slower for Fibonacci?
+
+Answer:
+Because it recomputes the same subproblems multiple times. For example, F(5) calls F(4) and F(3), and both again call F(2) repeatedly — leading to exponential growth in calls.
+
+6. What is the time and space complexity of recursive Fibonacci?
+
+Answer:
+Time = O(2ⁿ) (exponential), Space = O(n) (stack frames for recursion depth).
+
+7. What is the time and space complexity of iterative Fibonacci?
+
+Answer:
+Time = O(n), Space = O(1). Only a few variables are used, no recursion.
+
+8. Which approach is better and why?
+
+Answer:
+The iterative approach is better — it’s faster and uses constant memory, unlike recursion which has overhead from repeated function calls.
+
+9. How can you optimize the recursive version?
+
+Answer:
+By using memoization or dynamic programming to store computed Fibonacci values, avoiding redundant computation.
+
+10. What is the difference between recursion and iteration?
+Answer: 
+| Feature                        | Recursion                                       | Iteration           |
+| -----------------------| --------------------------------- | --------------           |
+| Control Structure | Function calls itself            | Uses loops           |
+| Memory usage             | High (stack used)                       | Low (constant)   |
+| Speed                             | Slower (function overhead) | Faster                   |
+| Termination              | Base case                                        | Loop condition |
+
+11. What is the role of the call stack in recursion?
+
+Answer:
+The call stack keeps track of function calls and local variables. Each recursive call pushes a new frame; when a call returns, its frame is popped.
+
+12. Can recursion be converted into iteration?
+
+Answer:
+Yes. Any recursive algorithm can be rewritten iteratively using loops and explicit stack variables if needed.
+
+13. What happens if the base condition is missing in recursion?
+
+Answer:
+It results in infinite recursion, eventually causing a stack overflow error.
+
+14. What are the limits of Fibonacci calculation using int in C++?
+
+Answer:
+For 32-bit int, Fibonacci values overflow after F(46). Using long long extends it safely up to F(92).
+
+15. What is dynamic programming?
+
+Answer:
+It’s an optimization technique that stores results of subproblems to avoid recomputation, improving time complexity.
+
+Real-Life Applications of Fibonacci Sequence
+
+Algorithm Analysis:
+Used to study recursion, complexity, and performance (common in DAA courses).
+
+Computer Science:
+Used in dynamic programming examples, Fibonacci heaps, tree growth modeling.
+
+Nature & Biology:
+Appears in branching of trees, arrangement of leaves, and patterns of shells or flowers (e.g., sunflower spirals).
+
+Finance:
+Fibonacci ratios (like 0.618, 1.618) are used in stock market technical analysis.
+
+Data Structures:
+Fibonacci heaps in graph algorithms (e.g., Dijkstra’s algorithm).
+
+Art and Architecture:
+Fibonacci sequence relates to the Golden Ratio, used in aesthetic design.
+
+Algorithm Optimization Teaching:
+Demonstrates how recursion can be converted to dynamic programming or iteration for efficiency.

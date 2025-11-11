@@ -1,0 +1,198 @@
+#include <iostream>                 // For input and output (cin, cout)
+#include <vector>                   // For using dynamic arrays (vectors)
+#include <climits>                  // For using INT_MIN (very small value)
+using namespace std;                // Standard namespace
+
+//---------------------- CLASS DEFINITION --------------------------
+class Knapsack {
+public:
+    // Function to solve 0/1 Knapsack problem using Dynamic Programming
+    int knapsack(int W, vector<int>& wt, vector<int>& val, int n) {
+        // Create a DP table with (n+1) rows and (W+1) columns
+        // dp[i][w] = max value using first i items and weight capacity w
+        vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
+
+        // Fill the table in a bottom-up manner
+        for (int i = 1; i <= n; i++) {           // loop through each item
+            for (int w = 1; w <= W; w++) {       // loop through each weight
+                int notTake = dp[i - 1][w];      // case 1: don't include the current item
+                int take = INT_MIN;              // case 2: include item (initialize to -∞)
+
+                // Check if item fits in the remaining capacity
+                if (wt[i - 1] <= w) {
+                    // Add value of current item + best result for remaining weight
+                    take = val[i - 1] + dp[i - 1][w - wt[i - 1]];
+                }
+
+                // Take the maximum of including or excluding the item
+                dp[i][w] = max(take, notTake);
+            }
+        }
+        // Final cell dp[n][W] contains the maximum value possible
+        return dp[n][W];
+    }
+
+    // Function to get input and display result
+    void solve() {
+        int n, W;
+        cout << "Enter number of items: ";
+        cin >> n;                                  // total number of items
+
+        vector<int> wt(n), val(n);                 // arrays for weight and value
+        cout << "Enter values of items:\n";
+        for (int i = 0; i < n; i++) cin >> val[i]; // read item values
+
+        cout << "Enter weights of items:\n";
+        for (int i = 0; i < n; i++) cin >> wt[i];  // read item weights
+
+        cout << "Enter knapsack total weight: ";
+        cin >> W;                                  // total capacity of bag
+
+        // Call the knapsack function and print result
+        int maxValue = knapsack(W, wt, val, n);
+        cout << "\nMaximum value that can be obtained = " << maxValue << endl;
+    }
+};
+
+//---------------------- MAIN FUNCTION --------------------------
+int main() {
+    Knapsack k;                  // Create object of class Knapsack
+    k.solve();                   // Call the solve() function
+    return 0;                    // Successful program termination
+}
+
+// input//
+/*Enter number of items: 4
+Enter values of items:
+10 40 30 50
+Enter weights of items:
+5 4 6 3
+Enter knapsack total weight: 10 */
+//Output = 90 //
+
+-------------------------------------------------------------------------------------------------------------------
+
+🧠 Assignment Explanation
+DAA 3 – Problem Statement
+
+Write a program to solve the 0/1 Knapsack problem using Dynamic Programming or Branch and Bound strategy.
+
+We are given:
+
+A list of items, each with:
+
+a value (profit)
+
+a weight
+
+A bag (knapsack) with limited capacity W
+
+We must choose items such that:
+
+Total weight ≤ W
+
+Total value is maximum
+
+We can either include (1) or exclude (0) an item → that’s why it’s called 0/1 Knapsack.
+
+📘 Theory (in simple words)
+1. What is 0/1 Knapsack?
+
+It is a combinatorial optimization problem.
+We must choose items that give the maximum profit without exceeding the bag's weight limit.
+We cannot break items (no fractions).
+
+2. Why Dynamic Programming?
+
+Because the problem has overlapping subproblems and optimal substructure.
+
+Recursion would take exponential time (2ⁿ), but DP stores past results in a table, making it polynomial time (n×W).
+
+⏱️ Time and Space Complexity
+| Type                                      | Complexity | Explanation                                               | 
+| --------------------                    | ----------           | ---------------------------------                           |
+| **Time Complexity**    | O(n × W)         | DP table has n×W cells                         |
+| **Space Complexity** | O(n × W)         | Each cell stores an integer value |
+
+💡 Applications (Simple Words)
+| Area                                              |  Use Case                                       |
+| -----------------------                       | ---------------------------------------------- |
+| **Resource allocation** | Select projects with limited budget            |
+| **Cargo loading**                | Fill truck to maximize profit                  |
+| **Investment planning** | Choose best assets under budget                |
+| **Memory optimization** | Decide which files fit in limited storage      |
+| **Cloud computing**          | Allocate limited resources for max utilization |
+
+
+🎤 Viva Questions and Answers
+
+Q1. What is the 0/1 Knapsack problem?
+A: It is an optimization problem where each item can be either included (1) or excluded (0) to maximize value within a weight limit.
+
+Q2. Why can’t we use a greedy algorithm here?
+A: Because greedy may fail to find the best combination; the problem needs Dynamic Programming for accurate results.
+
+Q3. What is the recursive formula for DP?
+A:
+
+dp[i][w] = max(dp[i-1][w], val[i-1] + dp[i-1][w - wt[i-1]])
+
+
+Q4. What are overlapping subproblems?
+A: When the same smaller problem is solved multiple times — DP stores the result to reuse it.
+
+Q5. What is the base condition in this problem?
+A: If no items or weight is zero → dp[0][w] = 0.
+
+Q6. What is the time complexity?
+A: O(n × W)
+
+Q7. What is the space complexity?
+A: O(n × W)
+
+Q8. What does “0/1” mean?
+A: Either we take the whole item (1) or leave it (0) — no splitting allowed.
+
+Q9. What kind of strategy does DP use?
+A: Bottom-up approach, storing intermediate results in a table.
+
+Q10. What’s the difference between 0/1 and Fractional Knapsack?
+A: In 0/1, items can’t be divided; in Fractional, parts of an item can be taken.
+
+🏁 In Short
+
+The 0/1 Knapsack problem is solved using Dynamic Programming to maximize total value without exceeding the bag’s capacity.
+It uses a table-based approach, checks each item’s inclusion/exclusion, and ensures optimal selection.
+
+*⚖️ Greedy vs DP (Quick)**
+
+| Feature             | Greedy                                | DP             |
+| -------------            | -------------------                   | -------------- |
+| Logic                  | Best local choice        | Global optimum |
+| Works for          | Fractional Knapsack | 0/1 Knapsack   |
+| Result                | May miss best                 | Always best    |
+| Time                     | Fast                                   |  Slower         |
+| Reuse results | No                                       | Yes            |
+
+**In short:**
+Greedy = quick local choices.
+DP = detailed global optimization using stored results.
+
+
+🧩 In Simple Words
+
+Greedy:
+“Take what looks best right now.”
+Works when local choices also lead to the global best (e.g. fractional knapsack, Huffman coding).
+
+Dynamic Programming:
+“Try all combinations, store past results, and pick the best overall.”
+Needed when greedy fails, like in 0/1 Knapsack.
+
+
+🎤 Viva-Ready One-Liner
+
+“Greedy chooses the best immediate option, while Dynamic Programming explores all options and stores results to guarantee the global optimum.”
+
+-------------------------------------------------------------------------------------------------------------------
+

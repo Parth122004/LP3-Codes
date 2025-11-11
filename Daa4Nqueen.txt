@@ -1,0 +1,219 @@
+#include <iostream>              // For input and output operations
+#include <vector>                // For using dynamic 2D vector (for chessboard)
+using namespace std;
+
+//-------------------- CLASS DEFINITION --------------------
+class NQueenSolver {
+private:
+    int N;                       // Size of the chessboard (N x N)
+    vector<vector<int>> board;   // 2D vector to represent the board, 1=queen, 0=empty
+
+    // Function to check if placing a queen at position (row, col) is safe
+    bool isSafe(int row, int col) {
+        // Check vertically upwards in the same column
+        for (int i = 0; i < row; i++)
+            if (board[i][col] == 1)        // Another queen found in same column
+                return false;
+
+        // Check upper-left diagonal
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--)
+            if (board[i][j] == 1)          // Another queen found diagonally left
+                return false;
+
+        // Check upper-right diagonal
+        for (int i = row - 1, j = col + 1; i >= 0 && j < N; i--, j++)
+            if (board[i][j] == 1)          // Another queen found diagonally right
+                return false;
+
+        // If no attack possible, it's safe to place a queen
+        return true;
+    }
+
+    // Recursive function to solve the N-Queens problem using backtracking
+    bool solveNQueens(int row) {
+        // Base case: if all queens are placed, return true
+        if (row == N)
+            return true;
+
+        // Check if the row already contains a manually placed queen
+        bool hasQueen = false;
+        for (int col = 0; col < N; col++)
+            if (board[row][col] == 1)
+                hasQueen = true;
+
+        // If queen already in this row, move to the next one
+        if (hasQueen)
+            return solveNQueens(row + 1);
+
+        // Try placing a queen in every column of the current row
+        for (int col = 0; col < N; col++) {
+            if (isSafe(row, col)) {        // Check if it's safe to place a queen here
+                board[row][col] = 1;       // Place the queen
+
+                // Recursive call to place the next queen in the next row
+                if (solveNQueens(row + 1))
+                    return true;           // If successful, return true
+
+                // If placing queen here doesn't lead to a solution, remove it (backtrack)
+                board[row][col] = 0;
+            }
+        }
+
+        // If no column in this row works, return false to backtrack
+        return false;
+    }
+
+    // Function to print the final chessboard configuration
+    void printBoard() const {
+        cout << "\nFinal N-Queens Board Configuration:\n";
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                cout << board[i][j] << " ";   // 1 = queen, 0 = empty space
+            }
+            cout << endl;
+        }
+    }
+
+public:
+    // Constructor to initialize the board with zeros
+    NQueenSolver(int size) : N(size), board(size, vector<int>(size, 0)) {}
+
+    // Function to manually place the first queen (given by user)
+    void placeFirstQueen(int row, int col) {
+        if (row >= 0 && row < N && col >= 0 && col < N)
+            board[row][col] = 1;          // Place the queen
+        else
+            cout << "Invalid position! Queen not placed.\n";
+    }
+
+    // Function to solve the N-Queens problem and display result
+    void solve() {
+        if (solveNQueens(0))              // Start recursion from row 0
+            printBoard();                 // Print final board
+        else
+            cout << "No solution exists for given placement.\n";
+    }
+};
+
+//-------------------- MAIN FUNCTION --------------------
+int main() {
+    int N;
+    cout << "Enter value of N (chessboard size): ";
+    cin >> N;                             // Input board size (e.g., 4)
+
+    NQueenSolver solver(N);               // Create object of class
+
+    int firstRow, firstCol;
+    cout << "Enter position of first Queen (row col starting from 0): ";
+    cin >> firstRow >> firstCol;          // Input first queen's position
+
+    solver.placeFirstQueen(firstRow, firstCol);  // Place the first queen manually
+    solver.solve();                               // Solve the rest using backtracking
+
+    return 0;                            // End of program
+}
+//input//
+/*Enter value of N (chessboard size): 4
+Enter position of first Queen (row col starting from 0): 0 1*/
+//output//
+/*Final N-Queens Board Configuration:
+0 1 0 0
+0 0 0 1
+1 0 0 0
+0 0 1 0*/
+
+-----------------------------------------------------------------------------------------------
+
+🧩 Assignment Explanation
+Problem Statement
+
+Design an N×N chessboard having the first Queen placed manually.
+Use backtracking to place remaining Queens so that no two queens attack each other.
+
+This problem demonstrates backtracking, a recursive algorithm used to explore multiple solutions and revert (backtrack) if a partial solution fails.
+
+🧠 Theory (in Simple Words)
+What is the N-Queens Problem?
+
+It is about placing N queens on an N×N chessboard so that:
+
+No two queens are in the same row, column, or diagonal.
+
+What is Backtracking?
+
+It’s a trial-and-error method:
+
+Place a queen in a valid (safe) position.
+
+Move to the next row and try to place the next queen.
+
+If a placement causes a conflict → remove the last queen (backtrack) and try a different position.
+
+Repeat until all queens are placed.
+
+Algorithm Steps
+
+Start from row 0.
+
+For each column, check if placing a queen is safe.
+
+If safe, place the queen.
+
+Move to the next row recursively.
+
+If unable to place, backtrack (remove and try next column).
+
+When all rows are filled, print the solution.
+
+⏱️ Time and Space Complexity
+
+| Type                 | Complexity | Explanation                                                                   |
+| -------------------- | ---------- | ----------------------------------------------------------------------------- |
+| **Time Complexity**  | O(N!)      | Each row can have N possibilities and recursion explores many configurations. |
+| **Space Complexity** | O(N²)      | For storing board and recursive stack memory.                                 |
+
+💡 Applications (Simple Words)
+| Area                | Example                                                    |
+| ------------------- | ---------------------------------------------------------- |
+| **AI / Robotics**   | Constraint satisfaction problems.                          |
+| **Puzzle Solving**  | Sudoku, Crossword puzzles.                                 |
+| **Compiler Design** | Register allocation and task scheduling.                   |
+| **Game Theory**     | Chess move validation, placement problems.                 |
+| **Optimization**    | Search problems requiring pruning (cutting off bad paths). |
+
+🎤 Viva Questions and Answers
+
+Q1. What is the N-Queens problem?
+A: It’s placing N queens on an N×N chessboard so that no two attack each other.
+
+Q2. Why use backtracking for this problem?
+A: Because we need to explore multiple configurations and undo wrong choices (backtrack).
+
+Q3. What is a safe position?
+A: A position where no other queen exists in the same row, column, or diagonal.
+
+Q4. What is the base condition in recursion?
+A: When all N queens have been placed successfully (row == N).
+
+Q5. What data structure is used to represent the board?
+A: A 2D vector (matrix) of integers.
+
+Q6. What happens if no solution exists?
+A: The function returns false and prints “No solution exists for given placement.”
+
+Q7. Why do we check only the upper half in safety check?
+A: Because we fill the board row by row, so only the upper rows can contain existing queens.
+
+Q8. What is the time complexity of the N-Queens problem?
+A: O(N!) — because of multiple combinations and recursive branching.
+
+Q9. What is the concept of backtracking in one line?
+A: Backtracking means trying all possibilities and undoing (backtracking) invalid moves.
+
+Q10. Can N-Queens be solved for all N?
+A: No, there is no solution for N = 2 or N = 3. Solutions exist for N ≥ 4.
+
+🧾 Summary
+
+The N-Queens problem is solved using backtracking, where we place one queen at a time and backtrack when conflicts arise.
+It demonstrates recursion, constraint checking, and pruning of invalid paths, which are key in AI and optimization.

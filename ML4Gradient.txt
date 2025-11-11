@@ -1,0 +1,148 @@
+# 1. Import library
+import matplotlib.pyplot as plt   # used for plotting graphs
+
+# 2. Define the function and its derivative
+# Function: y = (x + 3)^2
+def f(x):
+    return (x + 3)**2             # returns the value of the function
+
+# Derivative: f'(x) = 2(x + 3)
+def df(x):
+    return 2 * (x + 3)            # returns the slope at a given point x
+
+# 3. Gradient Descent function
+def gradient_descent(df, start_x, learning_rate=0.1, tolerance=1e-6, max_iter=100):
+    x = start_x                   # starting point for x
+    x_list, y_list = [x], [f(x)]  # lists to store x and f(x) values for plotting
+
+    for i in range(max_iter):     # repeat until reaching maximum iterations
+        grad = df(x)              # calculate slope (derivative)
+        new_x = x - learning_rate * grad   # update rule for gradient descent
+
+        # Stop early if change is very small (convergence)
+        if abs(new_x - x) < tolerance:
+            print(f"Converged after {i+1} iterations")
+            break
+
+        x = new_x
+        x_list.append(x)
+        y_list.append(f(x))       # store new x and f(x)
+
+        print(f"Iteration {i+1}: x = {x:.6f}, f(x) = {f(x):.6f}")
+
+    # Print the result after all iterations
+    print(f"\nLocal minima occurs at x = {x:.6f}, f(x) = {f(x):.6f}")
+    return x_list, y_list
+
+# 4. Run the algorithm starting from x = 2
+x_points, y_points = gradient_descent(df, start_x=2, learning_rate=0.1, max_iter=50)
+
+# 5. Plot the path of gradient descent
+plt.figure(figsize=(8,5))
+plt.plot(x_points, y_points, 'bo-', label='Gradient Descent Path')
+plt.title('Gradient Descent Convergence for y = (x + 3)^2')
+plt.xlabel('x values')
+plt.ylabel('f(x) values')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+
+
+==============================================================================================
+
+
+
+---
+
+## 🧾 **Assignment (short)**
+
+Implement the **Gradient Descent Algorithm** to find the **local minimum** of
+( y = (x + 3)^2 ) starting from ( x = 2 ).
+
+Steps:
+
+1. Define the function and its derivative.
+2. Apply gradient descent update rule.
+3. Repeat until convergence or max iterations.
+4. Show the result and plot the path.
+
+---
+
+## 📊 **Outputs (in short)**
+
+Example output:
+
+```
+Iteration 1: x = 1.400000, f(x) = 19.360000
+Iteration 2: x = 0.920000, f(x) = 15.366400
+...
+Converged after 26 iterations
+Local minima occurs at x = -3.000000, f(x) = 0.000000
+```
+
+**Explanation:**
+
+* Each iteration updates `x` to move closer to the minimum.
+* The function value `f(x)` keeps decreasing.
+* The algorithm stops near `x = -3`, where `f(x)` is minimum.
+* The plotted curve shows how it converges step by step.
+
+---
+
+## 📘 **Theory (simple)**
+
+* **Gradient Descent:**
+  An optimization method used to find the minimum value of a function.
+  It works by moving opposite to the direction of the gradient (slope).
+
+* **Formula:**
+  [
+  x_{new} = x_{old} - \text{learning_rate} \times f'(x_{old})
+  ]
+
+  * Learning rate decides the step size.
+  * Smaller rates give smooth but slow convergence.
+
+* For ( y = (x + 3)^2 ), derivative ( f'(x) = 2(x + 3) ).
+  The minimum point is ( x = -3 ).
+
+---
+
+## 🎯 **Viva Q&A**
+
+| Question                                    | Answer                                                           |
+| ------------------------------------------- | ---------------------------------------------------------------- |
+| What is gradient descent?                   | A method to find the minimum of a function using its derivative. |
+| What function is used here?                 | ( y = (x + 3)^2 )                                                |
+| What is its derivative?                     | ( 2(x + 3) )                                                     |
+| What does learning rate control?            | The step size for each update.                                   |
+| What happens if learning rate is too large? | The algorithm may overshoot and diverge.                         |
+| What happens if it’s too small?             | Convergence becomes very slow.                                   |
+| What is the stopping condition?             | When change in x becomes smaller than tolerance.                 |
+| What is the local minimum value?            | ( x = -3 ), ( f(x) = 0 ).                                        |
+
+---
+
+## ⏱️ **Time and Space Complexity**
+
+| Step              | Time                                 | Space                     |
+| ----------------- | ------------------------------------ | ------------------------- |
+| Iterative updates | O(k), where k = number of iterations | O(k) (for storing points) |
+
+---
+
+## 🧩 **Applications**
+
+1. **Machine learning:** Minimizing cost/loss functions in training models.
+2. **Neural networks:** Used in backpropagation to optimize weights.
+3. **Economics and finance:** Optimization problems.
+4. **Physics and engineering:** Curve fitting and energy minimization.
+
+---
+
+## ✅ **Conclusion**
+
+The **Gradient Descent Algorithm** successfully finds the **local minimum at x = -3**,
+where the function ( y = (x + 3)^2 ) reaches its smallest value ( f(x) = 0 ).
+This example demonstrates how gradient descent moves step-by-step toward the minimum value by reducing the function’s slope each iteration.

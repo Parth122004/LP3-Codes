@@ -1,0 +1,129 @@
+# 1. Import libraries
+import pandas as pd                      # dataframes
+import numpy as np                       # numeric ops
+from sklearn.model_selection import train_test_split  # split data
+from sklearn.preprocessing import StandardScaler      # feature scaling
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.neural_network import MLPClassifier      # neural network model
+import seaborn as sns                    # plotting heatmap
+import matplotlib.pyplot as plt          # plotting
+
+# 2. Load dataset
+df = pd.read_csv("a3.csv")               # read CSV into DataFrame
+print(df.head())                         # show first 5 rows to inspect
+
+# 3. Separate features and target
+# Drop non-feature ID/text columns and the target 'Exited'
+X = df.drop(['RowNumber', 'CustomerId', 'Surname', 'Exited'], axis=1)
+y = df['Exited']                         # target: 1 => left, 0 => stayed
+
+# 4. Encode categorical variables (one-hot)
+X = pd.get_dummies(X, drop_first=True)   # convert 'Geography' and 'Gender' to numeric columns
+
+# 5. Split data into training and testing sets
+# 80% train, 20% test, fixed random_state for reproducibility
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# 6. Normalize (scale) the data for stable and fast training
+scaler = StandardScaler()                 # create scaler instance
+X_train = scaler.fit_transform(X_train)   # fit on train and transform train
+X_test = scaler.transform(X_test)         # transform test using same scaler
+
+# 7. Build and train the Neural Network model (fix convergence)
+model = MLPClassifier(
+    hidden_layer_sizes=(64, 32, 16),      # 3 hidden layers: 64 -> 32 -> 16 neurons
+    activation='relu',                    # ReLU activation
+    solver='adam',                        # Adam optimizer
+    alpha=0.001,                          # L2 regularization strength
+    learning_rate='adaptive',             # reduce LR if validation score stops improving
+    early_stopping=True,                  # stop when no improvement on validation set
+    max_iter=500,                         # max epochs (increased to avoid early convergence warning)
+    random_state=42
+)
+
+model.fit(X_train, y_train)                # train the model on training data
+
+# 8. Make predictions on the test set
+y_pred = model.predict(X_test)             # predicted labels for test set
+
+# 9. Evaluate model performance
+acc = accuracy_score(y_test, y_pred)       # overall accuracy
+cm = confusion_matrix(y_test, y_pred)      # confusion matrix
+print("\nModel Accuracy:", round(acc, 3))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+# 10. Visualize confusion matrix
+sns.heatmap(cm, annot=True, fmt='d', cmap='Greens')
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+
+========================================================================================================
+
+
+---
+
+### Assignment (short)
+
+Predict whether a bank customer will leave (churn) in the next 6 months using a neural-network classifier. Steps: load data, separate features/target, encode categorical features, split data, scale features, build/train MLP, evaluate with accuracy and confusion matrix.
+
+---
+
+### Output (in short)
+
+* **Model Accuracy:** single number (e.g., 0.86) — percentage of correct predictions on test set.
+* **Classification report:** precision, recall, F1 for both classes (0 = stayed, 1 = left).
+* **Confusion matrix:** counts of true positives, false positives, true negatives, false negatives shown as a heatmap.
+
+Interpretation: higher precision for class 1 means fewer false spam-like predictions; higher recall for class 1 means more churners correctly detected. Use both metrics to judge model usefulness.
+
+---
+
+### Theory (simple)
+
+* **Problem type:** Binary classification (churn vs no-churn).
+* **Model:** MLP (Multi-Layer Perceptron) — feedforward neural network with hidden layers that learn non-linear feature interactions.
+* **Why scale:** NN and gradient-based solvers converge faster and more reliably when features are standardized.
+* **Regularization & early stopping:** reduce overfitting and stop training once validation performance stops improving.
+
+---
+
+### Viva Q&A (very short)
+
+Q: What is the target label?
+A: `Exited` (1 = left, 0 = stayed).
+
+Q: Why one-hot encode categorical features?
+A: To convert text categories to numeric features suitable for the model.
+
+Q: Why use StandardScaler?
+A: To standardize features so gradient descent behaves well.
+
+Q: What does `early_stopping=True` do?
+A: It stops training automatically when validation score stops improving.
+
+Q: How do you judge model performance?
+A: Use accuracy, precision, recall, F1-score, and the confusion matrix.
+
+---
+
+### Time and space complexity (simple)
+
+* **Training time (MLP):** roughly O(epochs × n_samples × n_features × n_neurons). Complexity grows with dataset size, features, layers, and epochs.
+* **Prediction time:** O(n_samples × n_neurons) per forward pass (fast).
+* **Space:** O(n_weights) to store model parameters plus O(n_samples × n_features) for data in memory.
+
+---
+
+### Applications (simple)
+
+* Bank customer churn prediction.
+* Subscription cancellations.
+* Predicting defaults or product returns.
+* Any binary decision based on customer features.
+
+

@@ -1,0 +1,281 @@
+# -------------------- 1. Import Libraries --------------------
+import numpy as np             # For numerical calculations
+import pandas as pd            # For data manipulation
+import matplotlib.pyplot as plt  # For plotting
+import seaborn as sns          # For advanced plots
+from sklearn.model_selection import train_test_split  # To split data into train/test
+from sklearn.preprocessing import StandardScaler      # To scale features
+from sklearn.linear_model import LinearRegression     # Linear regression model
+from sklearn.ensemble import RandomForestRegressor    # Random forest model
+from sklearn.metrics import mean_squared_error, r2_score  # Metrics for evaluation
+
+# -------------------- 2. Load Dataset --------------------
+df = pd.read_csv("a1_uber.csv")    # Load Uber dataset
+print("Initial Data Shape:", df.shape)  # Check number of rows & columns
+print(df.head())                     # Preview first 5 rows
+
+# -------------------- 3. Data Cleaning --------------------
+df = df.drop(['Unnamed: 0', 'pickup_datetime'], axis=1)  # Remove unnecessary columns
+df.dropna(inplace=True)                                # Remove rows with missing values
+print("\nAfter dropping nulls:", df.shape)
+
+# -------------------- 4. Feature Engineering --------------------
+df["key"] = pd.to_datetime(df["key"], errors='coerce')  # Convert string to datetime
+df["time"] = df["key"].dt.hour                          # Extract hour as new feature
+df.drop(columns=['key'], inplace=True)                 # Drop original 'key' column
+
+# -------------------- 5. Distance Calculation --------------------
+def euclidean_distance(lat1, lon1, lat2, lon2):
+    """Compute straight-line distance (approximate)."""
+    return np.sqrt((lat2 - lat1)**2 + (lon2 - lon1)**2)
+
+# Apply distance calculation to every row
+df['distance'] = df.apply(
+    lambda row: euclidean_distance(
+        row['pickup_latitude'],
+        row['pickup_longitude'],
+        row['dropoff_latitude'],
+        row['dropoff_longitude']
+    ), axis=1
+)
+
+# -------------------- 6. Outlier Detection & Removal --------------------
+sns.boxplot(data=df[['fare_amount', 'distance']])  # Plot boxplot to see outliers
+plt.title("Before Outlier Removal")
+plt.show()
+
+# Remove extreme distances or negative fares
+df = df[(df['distance'] < 100) & (df['fare_amount'] > 0)]
+
+sns.boxplot(data=df[['fare_amount', 'distance']])
+plt.title("After Outlier Removal")
+plt.show()
+
+# -------------------- 7. Correlation Check --------------------
+corr = df.corr(method="pearson")                  # Check correlation between features
+sns.heatmap(corr, annot=True, cmap="coolwarm")
+plt.title("Feature Correlation Heatmap")
+plt.show()
+
+# -------------------- 8. Train-Test Split --------------------
+X = df.drop("fare_amount", axis=1)   # Features
+y = df["fare_amount"]                # Target
+
+# Split 70% training, 30% test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# -------------------- 9. Feature Scaling --------------------
+scaler = StandardScaler()           # Standardize features
+X_train_scaled = scaler.fit_transform(X_train)  # Fit scaler on train & transform
+X_test_scaled = scaler.transform(X_test)        # Transform test set
+
+# -------------------- 10. Linear Regression --------------------
+lr = LinearRegression()
+lr.fit(X_train_scaled, y_train)                 # Train linear regression
+y_pred_lr = lr.predict(X_test_scaled)          # Predict on test data
+
+# Evaluation
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))  # Error metric
+r2_lr = r2_score(y_test, y_pred_lr)                        # Variance explained
+
+print("\n--- Linear Regression ---")
+print("RMSE:", rmse_lr)
+print("R² Score:", r2_lr)
+
+# -------------------- 11. Random Forest Regression --------------------
+rf = RandomForestRegressor(random_state=42)
+rf.fit(X_train_scaled, y_train)                # Train random forest
+y_pred_rf = rf.predict(X_test_scaled)         # Predict on test data
+
+# Evaluation
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+r2_rf = r2_score(y_test, y_pred_rf)
+
+print("\n--- Random Forest Regression ---")
+print("RMSE:", rmse_rf)
+print("R² Score:", r2_rf)
+
+# -------------------- 12. Comparison --------------------
+print("\nModel Comparison:")
+print(f"Linear Regression → RMSE: {rmse_lr:.2f}, R²: {r2_lr:.2f}")
+print(f"Random Forest → RMSE: {rmse_rf:.2f}, R²: {r2_rf:.2f}")
+
+
+===========================================================================================================================
+
+Sure! Here’s a **short and simple explanation of the outputs** of your Uber fare prediction ML1 code:
+
+---
+
+### **1. Initial Data Info**
+
+* `df.shape` → Shows number of rows and columns in the dataset.
+* `df.head()` → Displays first 5 rows to preview the data.
+
+---
+
+### **2. After Data Cleaning**
+
+* Removes irrelevant columns (`Unnamed: 0`, `pickup_datetime`) and rows with missing values.
+* `df.shape` → Smaller number of rows if nulls were removed.
+
+---
+
+### **3. Feature Engineering**
+
+* `time` → Extracted hour from `key` column.
+* `distance` → Euclidean distance between pickup and dropoff points.
+
+---
+
+### **4. Outlier Removal**
+
+* Boxplots show distribution of `fare_amount` and `distance`.
+* After filtering:
+
+  * Distances < 100
+  * Fare > 0
+    → Extreme values/outliers removed.
+
+---
+
+### **5. Correlation Heatmap**
+
+* Shows how features are related.
+* Strong correlation between `distance` and `fare_amount` → distance affects fare.
+
+---
+
+### **6. Model Training & Prediction**
+
+* **Linear Regression**:
+
+  * Predicts fare assuming a linear relationship with features.
+  * Outputs:
+
+    * **RMSE** → Average prediction error. Lower is better.
+    * **R² Score** → How well the model explains variance (0 to 1). Higher is better.
+
+* **Random Forest Regression**:
+
+  * Predicts fare using many decision trees → captures complex patterns.
+  * Outputs:
+
+    * Usually **lower RMSE** and **higher R²** than Linear Regression.
+
+---
+
+### **7. Model Comparison**
+
+Example output:
+
+```
+Linear Regression → RMSE: 3.45, R²: 0.65
+Random Forest → RMSE: 2.10, R²: 0.88
+```
+
+**Interpretation**:
+
+* Random Forest is better → smaller error and explains more variance.
+* Linear Regression is simpler, interpretable, but may miss non-linear patterns.
+
+---
+
+**In short:**
+
+1. Dataset cleaned → features created → outliers removed.
+2. Distance strongly affects fare.
+3. Linear Regression → simple prediction.
+4. Random Forest → more accurate prediction.
+5. RMSE and R² compare model performance → lower RMSE & higher R² is better.
+
+---
+
+If you want, I can also make a **one-line explanation for each model output** that’s super easy to remember for viva. Do you want me to do that?
+
+
+
+
+# **ML1 Assignment – Uber Fare Prediction**
+
+## **Assignment Explanation**
+
+* **Problem Statement:** Predict the fare amount of Uber rides using features like pickup/dropoff location, time of day, etc.
+* **Steps to solve:**
+
+  1. Load and clean the dataset.
+  2. Feature engineering: extract useful features like time of day and distance.
+  3. Remove outliers (wrong fare or extremely long distances).
+  4. Split data into training and test sets.
+  5. Scale features for better ML performance.
+  6. Train regression models: Linear Regression and Random Forest Regression.
+  7. Evaluate and compare models using RMSE and R² score.
+
+---
+
+# **Theory (Simple Words)**
+
+* **Linear Regression:** Fits a straight line to predict a continuous output. Simple, interpretable.
+* **Random Forest Regression:** An ensemble of decision trees. Combines multiple trees’ predictions → more accurate, less overfitting.
+* **Feature Engineering:** Converting raw data (timestamps, coordinates) into useful numerical features.
+* **Scaling:** Standardizes features so models like Linear Regression perform better.
+* **Evaluation Metrics:**
+
+  * **RMSE (Root Mean Squared Error):** Lower is better, measures average prediction error.
+  * **R² Score:** Measures proportion of variance explained. Closer to 1 → better.
+
+---
+
+
+# **Time and Space Complexity (Simple Words)**
+
+| Model                 | Time Complexity                    | Space Complexity                  |
+| --------------------- | ---------------------------------- | --------------------------------- |
+| **Linear Regression** | O(n × m)                           | O(m) (m = number of features)     |
+| **Random Forest**     | O(n × m × t) (t = number of trees) | O(n × t) (stores tree structures) |
+
+* **Scaling and feature engineering:** O(n) each
+* **Training/testing:** depends on model and data size
+
+---
+
+# **Applications (Simple Words)**
+
+| Field               | Application                                                   |
+| ------------------- | ------------------------------------------------------------- |
+| Taxi & Ride-sharing | Predict fare prices for Uber/Lyft rides                       |
+| E-commerce          | Predict delivery costs based on location & weight             |
+| Real Estate         | Predict property prices based on features                     |
+| Logistics           | Estimate shipping cost using distance & other features        |
+| Finance             | Predict stock or commodity prices based on numerical features |
+
+---
+
+# **Viva Q&A (Simple)**
+
+1. **Q:** What is Linear Regression?
+   **A:** A model to predict continuous values using a straight-line relationship.
+
+2. **Q:** What is Random Forest?
+   **A:** Ensemble of decision trees that averages predictions → more accurate.
+
+3. **Q:** Why scale features?
+   **A:** To make features comparable and improve model performance.
+
+4. **Q:** How is distance calculated here?
+   **A:** Using Euclidean distance (straight line), approximate distance.
+
+5. **Q:** Why remove outliers?
+   **A:** Outliers can skew model and reduce prediction accuracy.
+
+6. **Q:** Which model is better?
+   **A:** Random Forest usually performs better on complex, non-linear relationships.
+
+7. **Q:** What are RMSE and R²?
+   **A:** RMSE → average error; R² → how much variance is explained.
+
+---
+
+If you want, I can also **make a very short, one-page version** of this ML1 explanation for submission/viva — super concise, simple, and ready-to-read.
+
+Do you want me to do that?
